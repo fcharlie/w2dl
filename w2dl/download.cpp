@@ -21,6 +21,62 @@
 #define WINHTTP_PROTOCOL_FLAG_HTTP2 0x1
 #endif
 
+class FileImpl {
+public:
+	FileImpl() = default;
+	FileImpl(const FileImpl &) = delete;
+	FileImpl&operator=(const FileImpl &) = delete;
+	~FileImpl() {
+		if (hFile != INVALID_HANDLE_VALUE) {
+			CloseHandle(hFile);
+		}
+	}
+	bool Create(std::wstring_view name) {
+		file = name;
+		part =file + L".part";
+		hFile =CreateFileW(part.c_str(),
+			GENERIC_READ | GENERIC_WRITE,
+			FILE_SHARE_READ,
+			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (hFile == INVALID_HANDLE_VALUE) {
+			file.clear();
+			return false;
+		}
+		return true;
+	}
+	bool Write(const void *data, DWORD len) {
+		DWORD dwWrite = 0;
+		if (!WriteFile(hFile, data, len, &dwWrite, nullptr)) {
+			return false;
+		}
+		return (dwWrite == len);
+	}
+	bool Finish() {
+		CloseHandle(hFile);
+		hFile = INVALID_HANDLE_VALUE;
+		std::wstring npath = file;
+		int i = 1;
+		while (PathFileExistsW(npath.c_str())) {
+			auto n = file.find_last_of('.');
+			if (n != std::wstring::npos) {
+				npath = file.substr(0, n) + L"(";
+				npath += std::to_wstring(i);
+				npath += L")";
+				npath += file.substr(n);
+			}
+			else {
+				npath = file + L"(" + std::to_wstring(i) + L")";
+			}
+			i++;
+		}
+		return 	MoveFileExW(part.c_str(), npath.c_str(), MOVEFILE_COPY_ALLOWED) == TRUE;
+	}
+private:
+	std::wstring file;
+	std::wstring part;
+	HANDLE hFile{ INVALID_HANDLE_VALUE };
+};
+
 // https://www.ietf.org/rfc/rfc1738.txt
 struct URI_INFO {
 	int Port{ 0 };
@@ -178,6 +234,10 @@ bool HttpGet(const std::wstring &url,const std::wstring &file)
 		df = file;
 	}
 	//// createfile;
+	FileImpl fi;
+	if (!fi.Create(df)) {
+		return false;
+	}
 	DWORD dwSize = 0;
 	uint64_t totalsize = 0;
 	char recvbuf[16384];
@@ -188,15 +248,18 @@ bool HttpGet(const std::wstring &url,const std::wstring &file)
 		totalsize += dwSize;
 		auto dwSizeN = dwSize;
 		while (dwSizeN > 0) {
-			DWORD dwDownloaded = 0;
+			DWORD dwRead = 0;
 			if (!WinHttpReadData(hRequest,
 				(LPVOID)recvbuf,
 				MinWarp(sizeof(recvbuf), dwSizeN),
-				&dwDownloaded)) {
+				&dwRead)) {
 				break;
 			}
-			//fwrite(recvbuf, 1, dwDownloaded, stderr);
-			dwSizeN -= dwDownloaded;
+			if (!fi.Write(recvbuf, dwRead)) {
+				return false;
+			}
+			/// write to file
+			dwSizeN -= dwRead;
 		}
 	} while (dwSize > 0);
 	return true;

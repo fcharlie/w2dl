@@ -211,12 +211,10 @@ bool HttpStat(std::wstring_view url)
 				&dwDownloaded)) {
 				break;
 			}
-			//fwrite(recvbuf, 1, dwDownloaded, stderr);
 			dwSizeN -= dwDownloaded;
 		}
 	} while (dwSize > 0);
 
-	out.Print(L"receved: %lld\n", totalsize);
 	auto connectend = std::chrono::system_clock::now();
 	HeaderStat(ish2, whd, headerlen, dwStatusCode);
 	out.Print(L"total:\t\x1b[32m%lld ms\x1b[0m\n", 

@@ -133,7 +133,6 @@ bool HttpStat(std::wstring_view url)
 		WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL,
 		&dwOption, sizeof(dwOption))) {
 		fprintf(stderr, "HTTP2 is not supported\n");
-		return false;
 	}
 	auto startconnect= std::chrono::system_clock::now();
 	NetObject hConnect = WinHttpConnect(hNet,ui.szHostName,
@@ -192,7 +191,7 @@ bool HttpStat(std::wstring_view url)
 		WINHTTP_NO_HEADER_INDEX)) {
 		return false;
 	}
-	if (dwStatusCode != 200 && dwStatusCode != 201) {
+	if (dwStatusCode < 200 || dwStatusCode > 299) {
 		return HeaderStat(ish2,whd, headerlen,dwStatusCode);
 	}
 	uint64_t dwContentLength = 0;

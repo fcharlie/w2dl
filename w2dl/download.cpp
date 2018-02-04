@@ -88,15 +88,93 @@ bool HttpGet(const std::wstring &url,const std::wstring &file)
 	if (!ui.CrackURI(url)) {
 		return false;
 	}
-
+	NetObject hNet = WinHttpOpen(W2DL_USERAGENT,
+		WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+		WINHTTP_NO_PROXY_NAME,
+		WINHTTP_NO_PROXY_BYPASS, 0);
+	if (!hNet) {
+		return false;
+	}
+	DWORD dwOption = WINHTTP_OPTION_REDIRECT_POLICY_ALWAYS;
+	if (!WinHttpSetOption(hNet,
+		WINHTTP_OPTION_REDIRECT_POLICY,
+		&dwOption, sizeof(DWORD))) {
+		return false;
+	}
+	// HTTP2 support
+	dwOption = WINHTTP_PROTOCOL_FLAG_HTTP2;
+	if (!WinHttpSetOption(hNet,
+		WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL,
+		&dwOption, sizeof(dwOption))) {
+		fprintf(stderr, "HTTP2 is not supported\n");
+	}
+	NetObject hConnect = WinHttpConnect(hNet, ui.szHostName,
+		(INTERNET_PORT)ui.Port, 0);
+	if (!hConnect) {
+		return false;
+	}
+	DWORD flags = WINHTTP_FLAG_ESCAPE_DISABLE;/// Because URI_INFO escape done.
+	if (ui.nScheme == INTERNET_SCHEME_HTTPS) {
+		flags |= WINHTTP_FLAG_SECURE;
+	}
+	NetObject hRequest = WinHttpOpenRequest(
+		hConnect, L"GET", ui.PathQuery.data(), nullptr, WINHTTP_NO_REFERER,
+		WINHTTP_DEFAULT_ACCEPT_TYPES, flags);
+	if (!hRequest) {
+		return false;
+	}
+	if (WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0,
+		WINHTTP_NO_REQUEST_DATA, 0, 0, 0) == FALSE) {
+		return false;
+	}
+	if (WinHttpReceiveResponse(hRequest, NULL) == FALSE) {
+		return false;
+	}
+	DWORD dwStatusCode = 0;
+	DWORD dwXsize = sizeof(dwStatusCode);
+	if (!WinHttpQueryHeaders(hRequest,
+		WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+		WINHTTP_HEADER_NAME_BY_INDEX, &dwStatusCode, &dwXsize,
+		WINHTTP_NO_HEADER_INDEX)) {
+		return false;
+	}
+	/// HTTP Statuscode download need body, so must 200,201
+	/// 206 part download
+	if (dwStatusCode != 200 && dwStatusCode != 201 &&dwStatusCode !=206) {
+		/// print error
+		return false;
+	}
+	uint64_t dwContentLength = 0;
+	wchar_t buffer[512];
+	dwXsize = 64;
+	if (WinHttpQueryHeaders(hRequest,
+		WINHTTP_QUERY_CONTENT_LENGTH,
+		WINHTTP_HEADER_NAME_BY_INDEX, buffer, &dwXsize,
+		WINHTTP_NO_HEADER_INDEX)) {
+	}
+	wchar_t *cx = nullptr;
+	dwContentLength = wcstoull(buffer, &cx, 10);
 	///////////////////////////// create file
 	std::wstring df;
 	if (file.empty()) {
+		// See https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Disposition
 		// Content-Disposition
-
-		auto filename = PathFindFileNameW(ui.szUrlPath);
+		dwXsize = 512;
+		const constexpr int dipositionlen = sizeof("attachment; filename=\"\"") - 1;
+		if (WinHttpQueryHeaders(hRequest, 
+			WINHTTP_QUERY_CUSTOM,
+			L"Content-Disposition", buffer, &dwXsize,
+			WINHTTP_NO_HEADER_INDEX) &&dwXsize>dipositionlen) {
+			df.assign(buffer + dipositionlen - 1, dwXsize - dipositionlen);
+		}
+		else {
+			df = PathFindFileNameW(ui.szUrlPath);
+		}
 	}
-	//PathFindFileName
+	else {
+		df = file;
+	}
+	//// createfile;
 	return true;
 }
 

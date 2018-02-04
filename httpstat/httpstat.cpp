@@ -194,35 +194,29 @@ bool HttpStat(std::wstring_view url)
 	if (dwStatusCode < 200 || dwStatusCode > 299) {
 		return HeaderStat(ish2,whd, headerlen,dwStatusCode);
 	}
-	uint64_t dwContentLength = 0;
-	wchar_t conlen[36];
-	dwXsize = sizeof(conlen);
-	if (WinHttpQueryHeaders(hRequest,
-		WINHTTP_QUERY_CONTENT_LENGTH,
-		WINHTTP_HEADER_NAME_BY_INDEX, conlen, &dwXsize,
-		WINHTTP_NO_HEADER_INDEX)) {
-	}
-	wchar_t *cx = nullptr;
-	dwContentLength = wcstoull(conlen, &cx, 10);
+	char recvbuf[8192];
 	DWORD dwSize = 0;
-	uint64_t total = 0;
-	char mybuf[4096];
+	uint64_t totalsize = 0;
 	do {
-		// Check for available data.
 		if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
 			break;
 		}
-		total += dwSize;
+		totalsize += dwSize;
 		auto dwSizeN = dwSize;
 		while (dwSizeN > 0) {
 			DWORD dwDownloaded = 0;
-			if (!WinHttpReadData(hRequest, (LPVOID)mybuf, 
-				MinWarp(sizeof(mybuf), dwSizeN), &dwDownloaded)) {
+			if (!WinHttpReadData(hRequest, 
+				(LPVOID)recvbuf,
+				MinWarp(sizeof(recvbuf), dwSizeN), 
+				&dwDownloaded)) {
 				break;
 			}
-			dwSizeN = dwSizeN - dwDownloaded;
+			//fwrite(recvbuf, 1, dwDownloaded, stderr);
+			dwSizeN -= dwDownloaded;
 		}
 	} while (dwSize > 0);
+
+	out.Print(L"receved: %lld\n", totalsize);
 	auto connectend = std::chrono::system_clock::now();
 	HeaderStat(ish2, whd, headerlen, dwStatusCode);
 	out.Print(L"total:\t\x1b[32m%lld ms\x1b[0m\n", 

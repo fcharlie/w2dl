@@ -4,6 +4,8 @@
 #pragma comment(lib,"winhttp")
 #pragma comment(lib,"Shlwapi")
 
+#define MinWarp(a,b) ((b<a)?b:a)
+
 #define W2DL_USERAGENT  L"w2dl/1.0"
 #ifdef _WIN64
 #define MOZ_USERAGENT L"Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -147,13 +149,14 @@ bool HttpGet(const std::wstring &url,const std::wstring &file)
 	uint64_t dwContentLength = 0;
 	wchar_t buffer[512];
 	dwXsize = 64;
+	/// chunked encoding not Content-Length
 	if (WinHttpQueryHeaders(hRequest,
 		WINHTTP_QUERY_CONTENT_LENGTH,
 		WINHTTP_HEADER_NAME_BY_INDEX, buffer, &dwXsize,
 		WINHTTP_NO_HEADER_INDEX)) {
+		wchar_t *cx = nullptr;
+		dwContentLength = wcstoull(buffer, &cx, 10);
 	}
-	wchar_t *cx = nullptr;
-	dwContentLength = wcstoull(buffer, &cx, 10);
 	///////////////////////////// create file
 	std::wstring df;
 	if (file.empty()) {
@@ -175,6 +178,27 @@ bool HttpGet(const std::wstring &url,const std::wstring &file)
 		df = file;
 	}
 	//// createfile;
+	DWORD dwSize = 0;
+	uint64_t totalsize = 0;
+	char recvbuf[16384];
+	do{
+		if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
+			break;
+		}
+		totalsize += dwSize;
+		auto dwSizeN = dwSize;
+		while (dwSizeN > 0) {
+			DWORD dwDownloaded = 0;
+			if (!WinHttpReadData(hRequest,
+				(LPVOID)recvbuf,
+				MinWarp(sizeof(recvbuf), dwSizeN),
+				&dwDownloaded)) {
+				break;
+			}
+			//fwrite(recvbuf, 1, dwDownloaded, stderr);
+			dwSizeN -= dwDownloaded;
+		}
+	} while (dwSize > 0);
 	return true;
 }
 

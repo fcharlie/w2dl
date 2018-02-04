@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "w2dl.hpp"
 #include <winhttp.h>
+#pragma comment(lib,"winhttp")
+#pragma comment(lib,"Shlwapi")
 
 #define W2DL_USERAGENT  L"w2dl/1.0"
 #ifdef _WIN64
@@ -26,6 +28,8 @@ struct URI_INFO {
 	WCHAR szPassword[128] = { 0 };
 	WCHAR szUrlPath[4096] = { 0 };
 	WCHAR szExtraInfo[1024] = { 0 };
+	std::wstring PathQuery;
+	int nScheme{ 0 };
 	bool CrackURI(std::wstring_view url) {
 		URL_COMPONENTS uc;
 		ZeroMemory(&uc, sizeof(uc));
@@ -51,11 +55,15 @@ struct URI_INFO {
 		if (WinHttpCrackUrl(url.data(), static_cast<DWORD>(url.size()), ICU_ESCAPE, &uc) != TRUE) {
 			return false;
 		}
+		nScheme = uc.nScheme;
 		Port = uc.nPort;
+		PathQuery.assign(szUrlPath);
+		if (uc.dwExtraInfoLength > 0) {
+			PathQuery.append(szExtraInfo);
+		}
 		return true;
 	}
 };
-
 struct NetObject {
 	NetObject(const NetObject &) = delete;
 	NetObject&operator=(const NetObject &) = delete;
@@ -74,7 +82,23 @@ struct NetObject {
 	HINTERNET hNet;
 };
 
+bool HttpGet(const std::wstring &url,const std::wstring &file)
+{
+	URI_INFO ui;
+	if (!ui.CrackURI(url)) {
+		return false;
+	}
 
+	///////////////////////////// create file
+	std::wstring df;
+	if (file.empty()) {
+		// Content-Disposition
+
+		auto filename = PathFindFileNameW(ui.szUrlPath);
+	}
+	//PathFindFileName
+	return true;
+}
 
 
 int Downloader::Execute() {

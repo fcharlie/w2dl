@@ -21,6 +21,7 @@ struct URI_INFO {
 	WCHAR szPassword[128] = { 0 };
 	WCHAR szUrlPath[4096] = { 0 };
 	WCHAR szExtraInfo[1024] = { 0 };
+	std::wstring PathQuery;
 	int nScheme{ 0 };
 	bool CrackURI(std::wstring_view url) {
 		URL_COMPONENTS uc;
@@ -49,6 +50,10 @@ struct URI_INFO {
 		}
 		nScheme = uc.nScheme;
 		Port = uc.nPort;
+		PathQuery.assign(szUrlPath);
+		if (uc.dwExtraInfoLength > 0) {
+			PathQuery.append(szExtraInfo);
+		}
 		return true;
 	}
 };
@@ -79,10 +84,10 @@ bool HeaderStat(bool ishttp2, const wchar_t *data, size_t len,int statuscode)
 		return false;
 	}
 	int color = (statuscode >= 200 && statuscode <= 299) ? 33 : 31;
-	out.Print(L"HTTP/\x1b[1;35m%s\x1b[0m \x1b[%dm%d\x1b[0m\n",
+	out.Print(L"HTTP/\x1b[1;35m%s\x1b[0m \x1b[%dm%d %s\x1b[0m\n",
 		(ishttp2 ? L"2.0" : std::wstring(data+5,3).c_str()), 
-		color, 
-		statuscode);
+		color,
+		statuscode, std::wstring(data + 13, p - data - 13));
 
 	auto pre = p + 2;
 	while (p<end) {
@@ -136,13 +141,12 @@ bool HttpStat(std::wstring_view url)
 	if (!hConnect) {
 		return false;
 	}
-	DWORD flags = WINHTTP_FLAG_ESCAPE_DISABLE;
+	DWORD flags = WINHTTP_FLAG_ESCAPE_DISABLE;/// Because URI_INFO escape done.
 	if (ui.nScheme == INTERNET_SCHEME_HTTPS) {
 		flags |= WINHTTP_FLAG_SECURE;
 	}
-
 	NetObject hRequest = WinHttpOpenRequest(
-		hConnect, L"GET", ui.szUrlPath, nullptr, WINHTTP_NO_REFERER,
+		hConnect, L"GET", ui.PathQuery.data(), nullptr, WINHTTP_NO_REFERER,
 		WINHTTP_DEFAULT_ACCEPT_TYPES, flags);
 	if (!hRequest) {
 		return false;

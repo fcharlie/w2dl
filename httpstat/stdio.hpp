@@ -1,4 +1,4 @@
-#ifndef HTTPSTAT_STDIO_HPP
+﻿#ifndef HTTPSTAT_STDIO_HPP
 #define HTTPSTAT_STDIO_HPP
 #pragma once
 

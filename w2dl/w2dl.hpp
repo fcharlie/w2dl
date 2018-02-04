@@ -1,4 +1,4 @@
-#ifndef W2DOWNLOAD_H
+﻿#ifndef W2DOWNLOAD_H
 #define W2DOWNLOAD_H
 #pragma once
 #include "stdafx.h"

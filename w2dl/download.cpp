@@ -140,6 +140,38 @@ struct NetObject {
 	HINTERNET hNet;
 };
 
+////how do resolve
+std::wstring ContentDispositionFilename(const wchar_t *buf, DWORD dwlen) {
+	auto p = wmemchr(buf, ';', dwlen);
+	if (p == nullptr) {
+		return std::wstring();
+	}
+	auto end = buf + dwlen;
+	p++;
+	do {
+		if (*p != ' ') {
+			break;
+		}
+		p++;
+	} while (p < end);
+	constexpr const size_t flen = sizeof("filename=") - 1;
+	if (p + flen >= end) {
+		return std::wstring();
+	}
+	if (wmemcmp(p, L"filename=", flen) != 0) {
+		return std::wstring();
+	}
+	 p += flen;
+	 if (*p == L'"') {
+		 p++;
+	 }
+	 std::wstring fl(p, end - p);
+	 if (fl.back() == L'"') {
+		 fl.pop_back();
+	 }
+	return fl;
+}
+
 bool HttpGet(const std::wstring &url,const std::wstring &file)
 {
 	URI_INFO ui;
@@ -153,6 +185,7 @@ bool HttpGet(const std::wstring &url,const std::wstring &file)
 	if (!hNet) {
 		return false;
 	}
+	/// We need download file, so 301 ..
 	DWORD dwOption = WINHTTP_OPTION_REDIRECT_POLICY_ALWAYS;
 	if (!WinHttpSetOption(hNet,
 		WINHTTP_OPTION_REDIRECT_POLICY,
@@ -224,9 +257,10 @@ bool HttpGet(const std::wstring &url,const std::wstring &file)
 			WINHTTP_QUERY_CUSTOM,
 			L"Content-Disposition", buffer, &dwXsize,
 			WINHTTP_NO_HEADER_INDEX) &&dwXsize>dipositionlen) {
-			df.assign(buffer + dipositionlen - 1, dwXsize - dipositionlen);
+			df = ContentDispositionFilename(buffer, dwXsize);
 		}
-		else {
+
+		if(df.empty()) {
 			df = PathFindFileNameW(ui.szUrlPath);
 		}
 	}

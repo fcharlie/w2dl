@@ -176,10 +176,11 @@ private:
     int ch = -1;
     HasArgs ha = optional_argument;
     const wchar_t *optarg = nullptr;
-    std::wstring_view name;
+
     if (arg[1] == '-') {
       /// parse long
       /// --name value; --name=value
+      std::wstring_view name;
       auto pos = arg.find('=');
       if (pos != std::wstring_view::npos) {
         if (pos + 1 >= arg.size()) {
@@ -220,7 +221,6 @@ private:
           break;
         }
       }
-      name = arg;
     }
     if (ch == -1) {
       return ErrorResult{std::wstring(L"Unacceptable input: ").append(arg), 1};
@@ -237,7 +237,7 @@ private:
       index++;
     }
     std::wstring oa(optarg == nullptr ? L"" : optarg);
-    if (callback(ch, oa, name)) {
+    if (callback(ch, oa, arg)) {
       return ErrorResult{};
     }
     return ErrorResult{L"skipped", 2};

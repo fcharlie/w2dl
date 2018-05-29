@@ -195,7 +195,7 @@ private:
       for (auto &o : opts) {
         if (name.compare(o.name) == 0) {
           if (o.val == 0) {
-            callback(0, optarg, std::wstring(name).c_str());
+            callback(0, optarg, name);
           }
           ch = o.val;
           ha = o.has_args;
@@ -237,7 +237,7 @@ private:
       optarg = argv_[index + 1];
       index++;
     }
-    if (callback(ch, optarg, arg.data())) {
+    if (callback(ch, optarg, arg)) {
       return ErrorResult{};
     }
     return ErrorResult{L"skipped", 2};

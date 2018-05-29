@@ -136,7 +136,7 @@ public:
     int val;
   };
   using ArgumentCallback =
-      std::function<bool(int, const wchar_t *optarg, const wchar_t *raw)>;
+      std::function<bool(int, std::wstring_view optarg, std::wstring_view raw)>;
   ErrorResult ParseArgument(const std::vector<option> &opts,
                             const ArgumentCallback &callback) {
     if (argc_ == 0 || argv_ == nullptr) {

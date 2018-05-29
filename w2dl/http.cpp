@@ -1,5 +1,7 @@
-#include "http.hpp"
 #include "stdafx.h"
+//
+#include "http.hpp"
+
 
 bool HttpDownloader::Download(std::wstring_view url, std::wstring_view save,
                               const ProgressCallback &progress) {

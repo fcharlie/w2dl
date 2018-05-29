@@ -194,6 +194,9 @@ private:
       }
       for (auto &o : opts) {
         if (name.compare(o.name) == 0) {
+          if (o.val == 0) {
+            callback(0, optarg, std::wstring(name).c_str());
+          }
           ch = o.val;
           ha = o.has_args;
           break;

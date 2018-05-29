@@ -78,6 +78,7 @@ struct NetObject {
 
 bool HeaderStat(bool ishttp2, const wchar_t *data, size_t len,int statuscode)
 {
+	wprintf(L"%s\n", data);
 	auto end = data + len;
 	auto p = wcsstr(data, L"\r\n");
 	if (p == nullptr) {

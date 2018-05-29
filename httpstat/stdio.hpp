@@ -10,13 +10,16 @@
 #include <cstdlib>
 #include <io.h>
 #include <string>
+#include <utility>
 #include <string_view>
 
-template <typename T> T Argument(T value) noexcept { return value; }
 template <typename T>
 T const *Argument(std::basic_string<T> const &value) noexcept {
-	return value.c_str();
+	return value.data();
 }
+
+template <typename T> T Argument(T value) noexcept { return value; }
+
 template <typename... Args>
 int StringPrint(wchar_t *const buffer, size_t const bufferCount,
 	wchar_t const *const format, Args const &... args) noexcept {
@@ -82,7 +85,7 @@ public:
 		std::wstring buffer;
 		size_t size = StringPrint(nullptr, 0, format, args...);
 		buffer.resize(size);
-		size = StringPrint(&buffer[0], buffer.size() + 1, format, args...);
+		size = StringPrint(&buffer[0], buffer.size() + 1, format, std::forward<Args>(args)...);
 		if (outistty) {
 			DWORD dwrite = 0;
 			if (!WriteConsoleW(hStdout, buffer.data(), size, &dwrite, nullptr)) {

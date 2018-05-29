@@ -21,30 +21,15 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="w2dl.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="stdio.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="argv.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="http.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="w2dl.cpp">
+    <ClCompile Include="wurlstat.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="download.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="http.cpp">
+    <ClCompile Include="wstat.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

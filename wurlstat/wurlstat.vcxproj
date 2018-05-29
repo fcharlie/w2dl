@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{A70C42D2-A36A-415A-ACD1-64BCB3FF2D81}</ProjectGuid>
+    <ProjectGuid>{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>w2dl</RootNamespace>
+    <RootNamespace>wurlstat</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -151,23 +151,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="argv.hpp" />
-    <ClInclude Include="http.hpp" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="stdio.hpp" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="w2dl.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="download.cpp" />
-    <ClCompile Include="http.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="w2dl.cpp" />
+    <ClCompile Include="wstat.cpp" />
+    <ClCompile Include="wurlstat.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

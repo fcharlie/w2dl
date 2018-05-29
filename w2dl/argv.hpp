@@ -189,7 +189,7 @@ private:
 				if (pos + 1 >= arg.size()) {
 					return ErrorResult{ std::wstring(L"Incorrect argument: ").append(arg),1 };
 				}
-				name = arg.substr(2, pos);
+				name = arg.substr(2, pos-2);
 				optarg = arg.data() + pos + 1;
 			}
 			else {

@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "w2dl", "w2dl\w2dl.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "httpstat", "httpstat\httpstat.vcxproj", "{ECC595EE-9B9C-42D0-A8BE-ECEAC70DFF9C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wurlstat", "wurlstat\wurlstat.vcxproj", "{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{ECC595EE-9B9C-42D0-A8BE-ECEAC70DFF9C}.Release|x64.Build.0 = Release|x64
 		{ECC595EE-9B9C-42D0-A8BE-ECEAC70DFF9C}.Release|x86.ActiveCfg = Release|Win32
 		{ECC595EE-9B9C-42D0-A8BE-ECEAC70DFF9C}.Release|x86.Build.0 = Release|Win32
+		{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}.Debug|x64.ActiveCfg = Debug|x64
+		{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}.Debug|x64.Build.0 = Debug|x64
+		{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}.Debug|x86.ActiveCfg = Debug|Win32
+		{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}.Debug|x86.Build.0 = Debug|Win32
+		{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}.Release|x64.ActiveCfg = Release|x64
+		{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}.Release|x64.Build.0 = Release|x64
+		{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}.Release|x86.ActiveCfg = Release|Win32
+		{81508CC8-B813-4A6C-9F34-4EBCD5F344CB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -77,11 +77,22 @@ private:
   HANDLE hFile{INVALID_HANDLE_VALUE};
 };
 
+/*
+WINPATHCCHAPI HRESULT PathCchCombineEx(
+  PWSTR  pszPathOut,
+  size_t cchPathOut,
+  PCWSTR pszPathIn,
+  PCWSTR pszMore,
+  ULONG  dwFlags
+);
+*/
+
 // https://www.ietf.org/rfc/rfc1738.txt
 struct URI_INFO {
   int Port{0};
   WCHAR szScheme[32] = {0};
-  WCHAR szHostName[256] = {0}; // https://tools.ietf.org/html/rfc1123#section-2.1
+  WCHAR szHostName[256] = {0};
+  // https://tools.ietf.org/html/rfc1123#section-2.1
   WCHAR szUserName[128] = {0};
   WCHAR szPassword[128] = {0};
   WCHAR szUrlPath[4096] = {0};
@@ -289,4 +300,7 @@ bool HttpGet(const std::wstring &url, const std::wstring &file) {
   return true;
 }
 
-int Downloader::Execute() { return 0; }
+int Downloader::Execute() {
+  //
+  return 0;
+}

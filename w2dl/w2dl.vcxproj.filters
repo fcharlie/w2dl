@@ -47,5 +47,8 @@
     <ClCompile Include="http.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="progressbar.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
